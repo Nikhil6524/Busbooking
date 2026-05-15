@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from data.models.postgres.user import User
+from src.data.models.postgres.user import User
 
 class UserRepository:
 
