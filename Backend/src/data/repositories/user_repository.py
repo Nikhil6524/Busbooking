@@ -19,6 +19,12 @@ class UserRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_phone(self, db: AsyncSession, phone: str):
+        result = await db.execute(
+            select(User).where(User.phone == phone)
+        )
+        return result.scalar_one_or_none()
+
     async def get_by_id(self, db: AsyncSession, user_id):
         result = await db.execute(
             select(User).where(User.id == user_id)
