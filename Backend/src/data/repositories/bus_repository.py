@@ -23,6 +23,18 @@ class BusRepository:
         )
         return result.scalar_one_or_none()
 
+    async def update_bus(self, db: AsyncSession, bus_id, bus_data: dict):
+        bus = await self.get_bus_by_id(db, bus_id)
+        if not bus:
+            return None
+
+        for key, value in bus_data.items():
+            setattr(bus, key, value)
+
+        await db.commit()
+        await db.refresh(bus)
+        return bus
+
     async def delete_bus(self, db: AsyncSession, bus_id):
         bus = await self.get_bus_by_id(db, bus_id)
         if bus:
