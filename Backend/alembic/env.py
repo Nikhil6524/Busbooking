@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from src.config.config import settings
+from config.settings import settings
 from src.data.models.postgres.base import Base
 
 from src.data.models.postgres import *

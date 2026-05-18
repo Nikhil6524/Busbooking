@@ -1,6 +1,4 @@
-from fastapi import FastAPI
-
-app = FastAPI(title="Bus Ticket Booking Management System")
+from src.api.rest.app import app
 
 
 @app.get("/")
