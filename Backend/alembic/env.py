@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from config.settings import settings
+from src.config.settings import settings
 from src.data.models.postgres.base import Base
 
 from src.data.models.postgres import *
@@ -12,7 +12,11 @@ from src.data.models.postgres.base import Base
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+db_url = settings.DATABASE_URL
+if "+asyncpg" in db_url:
+    db_url = db_url.replace("+asyncpg", "")
+
+config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

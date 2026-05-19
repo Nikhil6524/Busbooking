@@ -1,7 +1,4 @@
-import uuid
-
 from sqlalchemy import Column, DateTime, Date, Float, Integer, ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from src.data.models.postgres.base import Base, TimestampMixin
@@ -10,9 +7,9 @@ from src.data.models.postgres.base import Base, TimestampMixin
 class Schedule(Base,TimestampMixin):
     __tablename__ = "schedules"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    bus_id = Column(UUID(as_uuid=True), ForeignKey("buses.id"))
-    route_id = Column(UUID(as_uuid=True), ForeignKey("routes.id"))
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    bus_id = Column(Integer, ForeignKey("buses.id", ondelete="CASCADE"))
+    route_id = Column(Integer, ForeignKey("routes.id", ondelete="CASCADE"))
 
     departure_time = Column(DateTime)
     arrival_time = Column(DateTime)
@@ -25,4 +22,9 @@ class Schedule(Base,TimestampMixin):
 
     bus = relationship("Bus", back_populates="schedules")
     route = relationship("Route", back_populates="schedules")
-    bookings = relationship("Booking", back_populates="schedule")
+    bookings = relationship(
+        "Booking",
+        back_populates="schedule",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
