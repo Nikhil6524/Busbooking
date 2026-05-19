@@ -1,4 +1,3 @@
-import uuid
 from datetime import datetime
 
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
@@ -11,7 +10,7 @@ from src.data.models.postgres.base import Base, TimestampMixin
 class Bus(Base,TimestampMixin):
     __tablename__ = "buses"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     owner_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     bus_name = Column(String, nullable=False)
     bus_number = Column(String, unique=True, nullable=False)
@@ -21,4 +20,21 @@ class Bus(Base,TimestampMixin):
     amenities = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    schedules = relationship("Schedule", back_populates="bus")
+    routes = relationship(
+        "Route",
+        back_populates="bus",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    schedules = relationship(
+        "Schedule",
+        back_populates="bus",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )
+    favorites = relationship(
+        "Favorite",
+        back_populates="bus",
+        cascade="all, delete-orphan",
+        passive_deletes=True
+    )

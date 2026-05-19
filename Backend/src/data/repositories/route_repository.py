@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from data.models.postgres.route import Route
+from src.data.models.postgres.route import Route
 
 
 class RouteRepository:
@@ -39,3 +39,10 @@ class RouteRepository:
             )
         )
         return result.scalars().all()
+
+    async def delete_route(self, db: AsyncSession, route_id):
+        route = await self.get_route_by_id(db, route_id)
+        if route:
+            await db.delete(route)
+            await db.commit()
+        return route

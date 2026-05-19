@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from data.models.postgres.schedule import Schedule
+from src.data.models.postgres.schedule import Schedule
 
 
 class ScheduleRepository:
@@ -40,3 +40,10 @@ class ScheduleRepository:
             )
         )
         return result.scalars().all()
+
+    async def delete_schedule(self, db: AsyncSession, schedule_id):
+        schedule = await self.get_schedule_by_id(db, schedule_id)
+        if schedule:
+            await db.delete(schedule)
+            await db.commit()
+        return schedule

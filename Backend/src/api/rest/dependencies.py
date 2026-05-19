@@ -44,4 +44,4 @@ async def require_admin(
             detail="Admin access required"
         )
 
-    return user
+    return db_user
