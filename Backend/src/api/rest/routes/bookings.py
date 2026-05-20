@@ -1,10 +1,16 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.rest.dependencies import get_current_user
+from src.core.exceptions import (
+    UnauthorizedException,
+    NotFoundException,
+    ConflictException,
+    ForbiddenException
+)
 from src.data.clients.postgres import get_db
 from src.data.models.postgres.booking import Booking
 from src.data.models.postgres.schedule import Schedule
@@ -24,7 +30,7 @@ async def create_booking(
 ):
     user_id = current_user.get("user_id")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise UnauthorizedException()
 
     async with db.begin():
         schedule_result = await db.execute(
@@ -34,13 +40,13 @@ async def create_booking(
         )
         schedule = schedule_result.scalar_one_or_none()
         if not schedule:
-            raise HTTPException(status_code=404, detail="Schedule not found")
+            raise NotFoundException("Schedule not found")
 
         if schedule.status != "active":
-            raise HTTPException(status_code=409, detail="Schedule not active")
+            raise ConflictException("Schedule not active")
 
         if schedule.available_seats <= 0:
-            raise HTTPException(status_code=409, detail="No seats available")
+            raise ConflictException("No seats available")
 
         seat_result = await db.execute(
             select(Booking).where(
@@ -51,7 +57,7 @@ async def create_booking(
         )
         seat_booking = seat_result.scalar_one_or_none()
         if seat_booking:
-            raise HTTPException(status_code=409, detail="Seat already booked")
+            raise ConflictException("Seat already booked")
 
         booking = Booking(
             user_id=user_id,
@@ -74,7 +80,7 @@ async def cancel_booking(
 ):
     user_id = current_user.get("user_id")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise UnauthorizedException()
 
     async with db.begin():
         booking_result = await db.execute(
@@ -84,10 +90,10 @@ async def cancel_booking(
         )
         booking = booking_result.scalar_one_or_none()
         if not booking:
-            raise HTTPException(status_code=404, detail="Booking not found")
+            raise NotFoundException("Booking not found")
 
         if str(booking.user_id) != user_id:
-            raise HTTPException(status_code=403, detail="Forbidden")
+            raise ForbiddenException()
 
         if booking.booking_status == "cancelled":
             return {"message": "Booking already cancelled"}
@@ -113,7 +119,7 @@ async def booking_history(
 ):
     user_id = current_user.get("user_id")
     if not user_id:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise UnauthorizedException()
 
     result = await db.execute(
         select(Booking)

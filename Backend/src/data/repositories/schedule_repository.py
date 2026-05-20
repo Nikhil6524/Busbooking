@@ -1,6 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.data.models.postgres.bus import Bus
+from src.data.models.postgres.route import Route
 from src.data.models.postgres.schedule import Schedule
 
 
@@ -12,6 +14,18 @@ class ScheduleRepository:
         await db.commit()
         await db.refresh(schedule)
         return schedule
+
+    async def get_all_schedules(self, db: AsyncSession):
+        result = await db.execute(select(Schedule))
+        return result.scalars().all()
+
+    async def get_all_schedules_with_details(self, db: AsyncSession):
+        result = await db.execute(
+            select(Schedule, Route, Bus)
+            .join(Route, Route.id == Schedule.route_id)
+            .join(Bus, Bus.id == Schedule.bus_id)
+        )
+        return result.all()
 
     async def get_schedule_by_id(self, db: AsyncSession, schedule_id):
         result = await db.execute(
@@ -40,6 +54,51 @@ class ScheduleRepository:
             )
         )
         return result.scalars().all()
+
+    async def search_schedules(
+        self,
+        db: AsyncSession,
+        source: str,
+        destination: str,
+        journey_date=None
+    ):
+        query = (
+            select(Schedule)
+            .join(Route, Route.id == Schedule.route_id)
+            .where(
+                Route.source == source,
+                Route.destination == destination
+            )
+        )
+
+        if journey_date:
+            query = query.where(Schedule.journey_date == journey_date)
+
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    async def search_schedules_with_details(
+        self,
+        db: AsyncSession,
+        source: str,
+        destination: str,
+        journey_date=None
+    ):
+        query = (
+            select(Schedule, Route, Bus)
+            .join(Route, Route.id == Schedule.route_id)
+            .join(Bus, Bus.id == Schedule.bus_id)
+            .where(
+                Route.source == source,
+                Route.destination == destination
+            )
+        )
+
+        if journey_date:
+            query = query.where(Schedule.journey_date == journey_date)
+
+        result = await db.execute(query)
+        return result.all()
 
     async def delete_schedule(self, db: AsyncSession, schedule_id):
         schedule = await self.get_schedule_by_id(db, schedule_id)

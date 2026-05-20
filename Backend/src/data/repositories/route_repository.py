@@ -13,6 +13,10 @@ class RouteRepository:
         await db.refresh(route)
         return route
 
+    async def get_all_routes(self, db: AsyncSession):
+        result = await db.execute(select(Route))
+        return result.scalars().all()
+
     async def get_route_by_id(self, db: AsyncSession, route_id):
         result = await db.execute(
             select(Route).where(Route.id == route_id)
