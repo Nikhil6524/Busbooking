@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.rest.dependencies import require_admin
+from src.core.services.admin_service import AdminService
 from src.data.clients.postgres import get_db
-from src.data.repositories.bus_repository import BusRepository
-from src.data.repositories.route_repository import RouteRepository
-from src.data.repositories.schedule_repository import ScheduleRepository
 from src.schemas.admin_schema import (
     AdminAddRequest,
     AdminUpdateRequest,
@@ -23,9 +21,7 @@ router = APIRouter(
     tags=["Admin"]
 )
 
-bus_repository = BusRepository()
-route_repository = RouteRepository()
-schedule_repository = ScheduleRepository()
+admin_service = AdminService()
 
 
 @router.post("/add")
@@ -34,16 +30,7 @@ async def admin_add(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    if payload.entity == "bus":
-        bus_data = payload.data.model_dump()
-        if not bus_data.get("owner_id"):
-            bus_data["owner_id"] = str(admin.id)
-        return await bus_repository.create_bus(db, bus_data)
-
-    if payload.entity == "route":
-        return await route_repository.create_route(db, payload.data.model_dump())
-
-    return await schedule_repository.create_schedule(db, payload.data.model_dump())
+    return await admin_service.admin_add(db, payload, str(admin.id))
 
 
 @router.put("/update")
@@ -52,34 +39,7 @@ async def admin_update(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    if payload.entity == "bus":
-        bus = await bus_repository.update_bus(
-            db,
-            payload.id,
-            payload.data.model_dump(exclude_unset=True)
-        )
-        if not bus:
-            raise HTTPException(status_code=404, detail="Bus not found")
-        return bus
-
-    if payload.entity == "route":
-        route = await route_repository.update_route(
-            db,
-            payload.id,
-            payload.data.model_dump(exclude_unset=True)
-        )
-        if not route:
-            raise HTTPException(status_code=404, detail="Route not found")
-        return route
-
-    schedule = await schedule_repository.update_schedule(
-        db,
-        payload.id,
-        payload.data.model_dump(exclude_unset=True)
-    )
-    if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
-    return schedule
+    return await admin_service.admin_update(db, payload)
 
 
 @router.delete("/delete")
@@ -88,22 +48,7 @@ async def admin_delete(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    if payload.entity == "bus":
-        bus = await bus_repository.delete_bus_cascade(db, payload.id)
-        if not bus:
-            raise HTTPException(status_code=404, detail="Bus not found")
-        return {"message": "Bus deleted"}
-
-    if payload.entity == "route":
-        route = await route_repository.delete_route(db, payload.id)
-        if not route:
-            raise HTTPException(status_code=404, detail="Route not found")
-        return {"message": "Route deleted"}
-
-    schedule = await schedule_repository.delete_schedule(db, payload.id)
-    if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
-    return {"message": "Schedule deleted"}
+    return await admin_service.admin_delete(db, payload)
 
 
 @router.post("/buses")
@@ -112,10 +57,7 @@ async def create_bus(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    bus_data = payload.model_dump()
-    if not bus_data.get("owner_id"):
-        bus_data["owner_id"] = str(admin.id)
-    return await bus_repository.create_bus(db, bus_data)
+    return await admin_service.create_bus(db, payload.model_dump(), str(admin.id))
 
 
 @router.put("/buses/{bus_id}")
@@ -125,14 +67,7 @@ async def update_bus(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    bus = await bus_repository.update_bus(
-        db,
-        bus_id,
-        payload.model_dump(exclude_unset=True)
-    )
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus not found")
-    return bus
+    return await admin_service.update_bus(db, bus_id, payload.model_dump(exclude_unset=True))
 
 
 @router.delete("/buses/{bus_id}")
@@ -141,10 +76,7 @@ async def delete_bus(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    bus = await bus_repository.delete_bus_cascade(db, bus_id)
-    if not bus:
-        raise HTTPException(status_code=404, detail="Bus not found")
-    return {"message": "Bus deleted"}
+    return await admin_service.delete_bus(db, bus_id)
 
 
 @router.post("/routes")
@@ -153,7 +85,7 @@ async def create_route(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    return await route_repository.create_route(db, payload.model_dump())
+    return await admin_service.create_route(db, payload.model_dump())
 
 
 @router.put("/routes/{route_id}")
@@ -163,14 +95,7 @@ async def update_route(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    route = await route_repository.update_route(
-        db,
-        route_id,
-        payload.model_dump(exclude_unset=True)
-    )
-    if not route:
-        raise HTTPException(status_code=404, detail="Route not found")
-    return route
+    return await admin_service.update_route(db, route_id, payload.model_dump(exclude_unset=True))
 
 
 @router.delete("/routes/{route_id}")
@@ -179,10 +104,7 @@ async def delete_route(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    route = await route_repository.delete_route(db, route_id)
-    if not route:
-        raise HTTPException(status_code=404, detail="Route not found")
-    return {"message": "Route deleted"}
+    return await admin_service.delete_route(db, route_id)
 
 
 @router.post("/schedules")
@@ -191,7 +113,7 @@ async def create_schedule(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    return await schedule_repository.create_schedule(db, payload.model_dump())
+    return await admin_service.create_schedule(db, payload.model_dump())
 
 
 @router.put("/schedules/{schedule_id}")
@@ -201,14 +123,7 @@ async def update_schedule(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    schedule = await schedule_repository.update_schedule(
-        db,
-        schedule_id,
-        payload.model_dump(exclude_unset=True)
-    )
-    if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
-    return schedule
+    return await admin_service.update_schedule(db, schedule_id, payload.model_dump(exclude_unset=True))
 
 
 @router.delete("/schedules/{schedule_id}")
@@ -217,7 +132,4 @@ async def delete_schedule(
     db: AsyncSession = Depends(get_db),
     admin=Depends(require_admin)
 ):
-    schedule = await schedule_repository.delete_schedule(db, schedule_id)
-    if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
-    return {"message": "Schedule deleted"}
+    return await admin_service.delete_schedule(db, schedule_id)

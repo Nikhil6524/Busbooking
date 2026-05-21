@@ -1,6 +1,7 @@
 from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.exceptions import ConflictException
 from src.data.models.postgres.bus import Bus
 from src.data.models.postgres.booking import Booking
 from src.data.models.postgres.favourite import Favorite
@@ -11,6 +12,12 @@ from src.data.models.postgres.schedule import Schedule
 class BusRepository:
 
     async def create_bus(self, db: AsyncSession, bus_data: dict):
+        bus_id = bus_data.get("id")
+        if bus_id is not None:
+            existing_bus = await self.get_bus_by_id(db, bus_id)
+            if existing_bus:
+                raise ConflictException("Bus already exists")
+
         bus = Bus(**bus_data)
         db.add(bus)
         await db.commit()
