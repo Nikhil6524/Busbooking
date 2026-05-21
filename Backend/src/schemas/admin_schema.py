@@ -1,11 +1,13 @@
 from datetime import date, datetime
+from uuid import UUID
 from typing import Literal, Optional
 
 from pydantic import BaseModel
 
 
 class BusCreate(BaseModel):
-    owner_id: Optional[str] = None
+    id: Optional[int] = None
+    owner_id: Optional[UUID] = None
     bus_name: str
     bus_number: str
     bus_type: Optional[str] = None
@@ -15,7 +17,8 @@ class BusCreate(BaseModel):
 
 
 class BusUpdate(BaseModel):
-    owner_id: Optional[str] = None
+    id: Optional[int] = None
+    owner_id: Optional[UUID] = None
     bus_name: Optional[str] = None
     bus_number: Optional[str] = None
     bus_type: Optional[str] = None

@@ -14,6 +14,9 @@ class AuthProxyMiddleware(BaseHTTPMiddleware):
         self.auth_service_url = base_url.rstrip("/")
 
     async def dispatch(self, request: Request, call_next):
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         public_routes = [
             "/",
             "/health",

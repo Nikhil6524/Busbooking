@@ -1,12 +1,19 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.exceptions import NotFoundException
+from src.data.models.postgres.bus import Bus
 from src.data.models.postgres.route import Route
 
 
 class RouteRepository:
 
     async def create_route(self, db: AsyncSession, route_data: dict):
+        bus_id = route_data.get("bus_id")
+        result = await db.execute(select(Bus).where(Bus.id == bus_id))
+        if not result.scalar_one_or_none():
+            raise NotFoundException("Bus not found")
+
         route = Route(**route_data)
         db.add(route)
         await db.commit()
@@ -27,6 +34,12 @@ class RouteRepository:
         route = await self.get_route_by_id(db, route_id)
         if not route:
             return None
+
+        bus_id = route_data.get("bus_id")
+        if bus_id is not None:
+            result = await db.execute(select(Bus).where(Bus.id == bus_id))
+            if not result.scalar_one_or_none():
+                raise NotFoundException("Bus not found")
 
         for key, value in route_data.items():
             setattr(route, key, value)

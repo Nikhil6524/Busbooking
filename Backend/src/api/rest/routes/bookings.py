@@ -12,8 +12,10 @@ from src.core.exceptions import (
     ForbiddenException
 )
 from src.data.clients.postgres import get_db
+from src.data.models.postgres.bus import Bus
 from src.data.models.postgres.booking import Booking
 from src.data.models.postgres.schedule import Schedule
+from src.data.models.postgres.user import User
 from src.schemas.booking_schema import BookingCreate
 
 router = APIRouter(
@@ -127,3 +129,42 @@ async def booking_history(
         .order_by(Booking.booking_date.desc())
     )
     return result.scalars().all()
+
+
+@router.get("/current")
+async def current_booking(
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    user_id = current_user.get("user_id")
+    if not user_id:
+        raise UnauthorizedException()
+
+    result = await db.execute(
+        select(Booking, Schedule, Bus, User)
+        .join(Schedule, Booking.schedule_id == Schedule.id)
+        .join(Bus, Schedule.bus_id == Bus.id)
+        .join(User, Booking.user_id == User.id)
+        .where(
+            Booking.user_id == user_id,
+            Booking.booking_status == "confirmed",
+            Schedule.status == "active"
+        )
+        .order_by(Booking.booking_date.desc())
+    )
+
+    bookings = []
+    for booking, schedule, bus, user in result.all():
+        passenger_name = (user.email or '').split('@', 1)[0] or user.name
+        bookings.append({
+            "id": str(booking.id),
+            "seat_number": booking.seat_number,
+            "booking_status": booking.booking_status,
+            "booking_date": booking.booking_date.isoformat() if booking.booking_date else None,
+            "passenger_name": passenger_name,
+            "bus_name": bus.bus_name,
+            "departure_date": schedule.journey_date.isoformat() if schedule.journey_date else None,
+            "departure_time": schedule.departure_time.isoformat() if schedule.departure_time else None,
+        })
+
+    return bookings

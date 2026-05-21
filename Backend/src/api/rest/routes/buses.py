@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.data.clients.postgres import get_db
 from src.data.repositories.bus_repository import BusRepository
+from src.schemas.bus_schema import BusResponse
 
 router = APIRouter(
     prefix="/buses",
@@ -10,6 +11,13 @@ router = APIRouter(
 )
 
 bus_repository = BusRepository()
+
+
+@router.get("", response_model=list[BusResponse])
+async def list_buses(
+    db: AsyncSession = Depends(get_db)
+):
+    return await bus_repository.get_all_buses(db)
 
 
 @router.get("/search")
