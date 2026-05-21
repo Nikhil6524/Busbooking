@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.rest.dependencies import require_admin
+from src.core.exceptions import NotFoundException
 from src.data.clients.postgres import get_db
 from src.data.repositories.bus_repository import BusRepository
 from src.data.repositories.route_repository import RouteRepository
@@ -59,7 +60,7 @@ async def admin_update(
             payload.data.model_dump(exclude_unset=True)
         )
         if not bus:
-            raise HTTPException(status_code=404, detail="Bus not found")
+            raise NotFoundException("Bus not found")
         return bus
 
     if payload.entity == "route":
@@ -69,7 +70,7 @@ async def admin_update(
             payload.data.model_dump(exclude_unset=True)
         )
         if not route:
-            raise HTTPException(status_code=404, detail="Route not found")
+            raise NotFoundException("Route not found")
         return route
 
     schedule = await schedule_repository.update_schedule(
@@ -78,7 +79,7 @@ async def admin_update(
         payload.data.model_dump(exclude_unset=True)
     )
     if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
+        raise NotFoundException("Schedule not found")
     return schedule
 
 
@@ -91,18 +92,18 @@ async def admin_delete(
     if payload.entity == "bus":
         bus = await bus_repository.delete_bus_cascade(db, payload.id)
         if not bus:
-            raise HTTPException(status_code=404, detail="Bus not found")
+            raise NotFoundException("Bus not found")
         return {"message": "Bus deleted"}
 
     if payload.entity == "route":
         route = await route_repository.delete_route(db, payload.id)
         if not route:
-            raise HTTPException(status_code=404, detail="Route not found")
+            raise NotFoundException("Route not found")
         return {"message": "Route deleted"}
 
     schedule = await schedule_repository.delete_schedule(db, payload.id)
     if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
+        raise NotFoundException("Schedule not found")
     return {"message": "Schedule deleted"}
 
 
@@ -131,7 +132,7 @@ async def update_bus(
         payload.model_dump(exclude_unset=True)
     )
     if not bus:
-        raise HTTPException(status_code=404, detail="Bus not found")
+        raise NotFoundException("Bus not found")
     return bus
 
 
@@ -143,7 +144,7 @@ async def delete_bus(
 ):
     bus = await bus_repository.delete_bus_cascade(db, bus_id)
     if not bus:
-        raise HTTPException(status_code=404, detail="Bus not found")
+        raise NotFoundException("Bus not found")
     return {"message": "Bus deleted"}
 
 
@@ -169,7 +170,7 @@ async def update_route(
         payload.model_dump(exclude_unset=True)
     )
     if not route:
-        raise HTTPException(status_code=404, detail="Route not found")
+        raise NotFoundException("Route not found")
     return route
 
 
@@ -181,7 +182,7 @@ async def delete_route(
 ):
     route = await route_repository.delete_route(db, route_id)
     if not route:
-        raise HTTPException(status_code=404, detail="Route not found")
+        raise NotFoundException("Route not found")
     return {"message": "Route deleted"}
 
 
@@ -207,7 +208,7 @@ async def update_schedule(
         payload.model_dump(exclude_unset=True)
     )
     if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
+        raise NotFoundException("Schedule not found")
     return schedule
 
 
@@ -219,5 +220,5 @@ async def delete_schedule(
 ):
     schedule = await schedule_repository.delete_schedule(db, schedule_id)
     if not schedule:
-        raise HTTPException(status_code=404, detail="Schedule not found")
+        raise NotFoundException("Schedule not found")
     return {"message": "Schedule deleted"}

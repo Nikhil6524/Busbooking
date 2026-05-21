@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Manrope:wght@400;500;600&display=swap');
+
+:root {
+  /* Palette */
+  --bg-1: #f6fbff;
+  --bg-2: #f2f7f5;
+  --surface: #ffffff;
+  --panel-bg: rgba(255,255,255,0.95);
+  --muted-bg: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0ea5e9;
+  --accent-2: #06b6d4;
+  --success: #16a34a;
+  --danger: #be123c;
+  --card-border: rgba(15,23,42,0.06);
+
+  /* Buttons */
+  --btn-gradient: linear-gradient(135deg, var(--accent), #22c55e);
+
+  /* UI sizes */
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle at 10% 15%, rgba(6,182,212,0.06), transparent 20%),
+              linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 60%);
+  color: var(--text-primary);
+}
+
+a { color: inherit; }
+button { font-family: inherit; }
+
+/* Utility */
+.card {
+  background: var(--panel-bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 12px 30px rgba(15,23,42,0.06);
+}
+
+.muted { color: var(--text-muted); }

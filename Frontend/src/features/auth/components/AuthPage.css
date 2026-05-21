@@ -1,0 +1,337 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap');
+
+.auth-shell {
+  display: grid;
+  grid-template-columns: minmax(300px, 1.1fr) minmax(320px, 460px);
+  gap: 1.75rem;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  min-height: 100vh;
+  align-items: center;
+}
+
+.auth-visual,
+.auth-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.auth-visual {
+  padding: 2.25rem;
+  min-height: 640px;
+  color: #f8fafc;
+  background:
+    radial-gradient(circle at top right, rgba(34, 197, 94, 0.28), transparent 28%),
+    radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.26), transparent 24%),
+    linear-gradient(145deg, #0b1220 0%, #0f172a 55%, #162033 100%);
+  box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+}
+
+.auth-visual::before,
+.auth-visual::after {
+  content: '';
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.auth-visual::before {
+  width: 240px;
+  height: 240px;
+  right: -90px;
+  top: -60px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.auth-visual::after {
+  width: 170px;
+  height: 170px;
+  left: -60px;
+  bottom: -50px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.brand,
+.route-card,
+.stats {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand h2 {
+  margin: 1rem 0 0.65rem;
+  max-width: 16ch;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 0.98;
+}
+
+.brand p {
+  margin: 0;
+  max-width: 36rem;
+  color: #dbeafe;
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+
+.route-card {
+  margin-top: 2rem;
+  padding: 1.35rem;
+  border-radius: 22px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.route-card h3 {
+  margin: 0 0 0.9rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.05rem;
+}
+
+.route-line {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 600;
+}
+
+.route-dash {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #22c55e, #38bdf8, transparent);
+}
+
+.route-meta {
+  margin-top: 0.9rem;
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  color: #bfdbfe;
+  font-size: 0.85rem;
+}
+
+.route-meta span {
+  padding: 0.42rem 0.72rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.stats {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.stats article {
+  padding: 1rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stats h4 {
+  margin: 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+}
+
+.stats p {
+  margin: 0.35rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+}
+
+.auth-panel {
+  padding: 2.35rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 22px 42px rgba(15, 23, 42, 0.1);
+}
+
+.auth-header h1 {
+  margin: 0 0 0.55rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 3vw, 2.55rem);
+  line-height: 1.05;
+}
+
+.auth-header p {
+  margin: 0 0 1.5rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--muted-bg);
+  margin-bottom: 1.25rem;
+}
+
+.mode-toggle button {
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 0.55rem 1.15rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mode-toggle button.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(14, 165, 233, 0.22);
+}
+
+.auth-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.auth-form label {
+  display: grid;
+  gap: 0.38rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.auth-form input,
+.auth-form select {
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 0.82rem 0.9rem;
+  background: #fff;
+  font: inherit;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.12);
+}
+
+.primary {
+  margin-top: 0.2rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 0.85rem 1rem;
+  font-weight: 700;
+  background: var(--btn-gradient);
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.72;
+  cursor: progress;
+}
+
+.status {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 16px;
+  background: var(--muted-bg);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.status.success {
+  background: rgba(22, 163, 74, 0.12);
+  color: var(--success);
+}
+
+.status.error {
+  background: rgba(190, 18, 60, 0.12);
+  color: var(--danger);
+}
+
+.auth-note {
+  margin-top: 1rem;
+  padding: 1rem 1.05rem;
+  display: grid;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(34,197,94,0.08));
+}
+
+.auth-note strong {
+  font-size: 0.95rem;
+}
+
+.auth-note p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.auth-footer {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.auth-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+@media (max-width: 960px) {
+  .auth-shell {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+
+  .auth-visual {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-shell {
+    padding: 1rem;
+  }
+
+  .auth-visual,
+  .auth-panel {
+    padding: 1.4rem;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+
+  .route-line {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .route-dash {
+    width: 100%;
+    flex: unset;
+  }
+}
